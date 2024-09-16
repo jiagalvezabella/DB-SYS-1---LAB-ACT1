@@ -1,0 +1,70 @@
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import LoginScreen from './Screen/LoginScreen';
+import UserListScreen from './Screen/UserListScreen';
+import AddUserScreen from './Screen/AddUserScreen';
+
+const Stack = createStackNavigator();
+
+const initializeDefaultCredentials = async () => {
+  try {
+
+    const storedUsers = await AsyncStorage.getItem('users');
+    if (!storedUsers) {
+      const defaultUsers = [
+        { email: 'alpha@uc.edu.ph', password: '12345' }
+      ];
+      await AsyncStorage.setItem('users', JSON.stringify(defaultUsers));
+      console.log('Default credentials added to AsyncStorage');
+    } else {
+      console.log('Users already stored:', storedUsers);
+    }
+  } catch (error) {
+    console.error('Failed to initialize default credentials:', error);
+  }
+};
+
+const App = () => {
+  // unquote og ireset nmo ang async
+  //clearAsyncStorage();
+  useEffect(() => {
+    initializeDefaultCredentials();
+  }, []);
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerTitle: '' }} 
+        />
+        <Stack.Screen
+          name="UserList"
+          component={UserListScreen}
+          options={{ headerTitle: '', headerBackTitleVisible: false }} 
+        />
+        <Stack.Screen
+          name="AddUser"
+          component={AddUserScreen}
+          options={{ headerTitle: '', headerBackTitleVisible: false }} 
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+const clearAsyncStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('AsyncStorage cleared successfully');
+  } catch (error) {
+    console.error('Failed to clear AsyncStorage:', error);
+  }
+};
+
+
+export default App;
